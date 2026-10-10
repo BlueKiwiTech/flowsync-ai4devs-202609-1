@@ -35,6 +35,7 @@ export function SignupPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submitting) return
     setError(null)
 
     if (password.length < PASSWORD_MIN || password.length > PASSWORD_MAX) {

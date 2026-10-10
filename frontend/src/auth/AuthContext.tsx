@@ -31,11 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    if (token) {
-      // Best effort: the local session is cleared even if the API call fails.
-      await apiLogout(token).catch(() => {})
-    }
+    // Clear the local session first so a slow or failing API never blocks the
+    // user; revoking the token server-side is best effort.
+    const current = token
     setToken(null)
+    if (current) await apiLogout(current).catch(() => {})
   }, [token, setToken])
 
   return (
