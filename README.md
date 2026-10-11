@@ -64,6 +64,17 @@ npm run dev
 
 Arranca en `http://localhost:5173`.
 
+## `AGENTS.md`
+
+`AGENTS.md` es un enlace simbólico a `CLAUDE.md`: otros agentes (Codex, Cursor…) leen las mismas instrucciones que Claude Code. En macOS, Linux y WSL funciona sin más. En **Windows nativo**, git solo crea enlaces si está activado:
+
+```bash
+git config --global core.symlinks true   # requiere el Modo de desarrollador de Windows activado
+git rm --cached AGENTS.md && git checkout -- AGENTS.md   # recrea el enlace en un clon existente
+```
+
+Sin eso, `AGENTS.md` aparece como un fichero de texto con la ruta `CLAUDE.md`: no lo edites ni hagas `git add` sobre él, o el enlace se convertirá en un fichero normal.
+
 ---
 
 # El ejercicio
