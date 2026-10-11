@@ -1,0 +1,3 @@
+# El Makefile se ejecuta en macOS/Linux/WSL: con CRLF (core.autocrlf en Windows)
+# las recetas fallan. Forzar LF al hacer checkout.
+Makefile text eol=lf
