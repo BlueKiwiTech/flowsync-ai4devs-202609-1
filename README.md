@@ -70,7 +70,7 @@ Arranca en `http://localhost:5173`.
 
 ```bash
 git config --global core.symlinks true   # requiere el Modo de desarrollador de Windows activado
-git rm --cached AGENTS.md && git checkout -- AGENTS.md   # recrea el enlace en un clon existente
+rm AGENTS.md && git checkout -- AGENTS.md            # recrea el enlace en un clon existente
 ```
 
 Sin eso, `AGENTS.md` aparece como un fichero de texto con la ruta `CLAUDE.md`: no lo edites ni hagas `git add` sobre él, o el enlace se convertirá en un fichero normal.
