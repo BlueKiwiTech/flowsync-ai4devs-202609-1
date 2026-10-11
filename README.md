@@ -34,6 +34,7 @@ make start   # backend (http://localhost:3333) y frontend (http://localhost:5173
 
 - Necesitas `make` y Node.js >= 22 (recomendado 24). En macOS, `make` viene con las Xcode Command Line Tools (`xcode-select --install`).
 - `make setup` se puede repetir: no pisa los `.env` existentes ni regenera la `APP_KEY`.
+- `make start` no arranca si los puertos 3333 o 5173 están ocupados, y si uno de los dos servidores se cae, para también el otro.
 - **WSL**: instala Node dentro de Linux (p. ej. con [nvm](https://github.com/nvm-sh/nvm)). Si `node`/`npm` apuntan a la instalación de Windows (`/mnt/c/...`), `make` se para con un aviso. Mejor clonar el repo en el sistema de archivos de Linux (`~/...`) que en `/mnt/c`: es mucho más rápido.
 
 Si prefieres hacerlo a mano, abajo están los pasos por separado.
