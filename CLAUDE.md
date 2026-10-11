@@ -13,6 +13,13 @@ Project docs (`README.md`, `prompts.md`) are in Spanish.
 
 ## Commands
 
+From the repo root (`Makefile`, POSIX sh only so it runs on macOS's make 3.81, Linux and WSL; kept LF via `.gitattributes`):
+
+```bash
+make setup   # npm ci both projects, create .env files, APP_KEY only if empty, migration:run (idempotent)
+make start   # backend + frontend as background jobs; trap sends SIGINT to the group (ace serve ignores SIGTERM), so Ctrl+C or one side dying stops both; refuses if ports 3333/5173 are busy
+```
+
 Backend (run from `backend/`):
 
 ```bash
