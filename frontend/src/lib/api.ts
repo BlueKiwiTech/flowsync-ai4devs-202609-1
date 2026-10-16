@@ -34,9 +34,14 @@ type RequestOptions = {
   method?: 'GET' | 'POST'
   body?: unknown
   token?: string | null
+  /** The endpoint does not wrap its response in `{ data }` (e.g. logout). */
+  unwrapped?: boolean
 }
 
-async function request<T>(path: string, { method = 'GET', body, token }: RequestOptions = {}) {
+async function request<T>(
+  path: string,
+  { method = 'GET', body, token, unwrapped = false }: RequestOptions = {}
+) {
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (body !== undefined) headers['Content-Type'] = 'application/json'
   if (token) headers.Authorization = `Bearer ${token}`
@@ -59,7 +64,15 @@ async function request<T>(path: string, { method = 'GET', body, token }: Request
     throw new ApiError(response.status, errors)
   }
 
-  return payload?.data as T
+  if (unwrapped) return payload as T
+
+  // A 2xx without our `{ data }` envelope means we are not talking to the API (e.g. a proxy
+  // or static server answering instead), so treat it as an unreachable server.
+  if (typeof payload !== 'object' || payload === null || !('data' in payload)) {
+    throw new ApiError(0, [])
+  }
+
+  return payload.data as T
 }
 
 export function signup(email: string, password: string, passwordConfirmation: string) {
@@ -78,13 +91,14 @@ export function getProfile(token: string) {
 }
 
 export function logout(token: string) {
-  return request<unknown>('account/logout', { method: 'POST', token })
+  return request<{ message: string }>('account/logout', { method: 'POST', token, unwrapped: true })
 }
 
 const fieldMessages: Record<string, Record<string, string>> = {
   email: {
     'database.unique': 'Ya existe una cuenta con este email.',
     'email': 'Introduce un email válido.',
+    'maxLength': 'El email no puede superar los 254 caracteres.',
     'required': 'El email es obligatorio.',
   },
   password: {
@@ -104,7 +118,10 @@ const fieldMessages: Record<string, Record<string, string>> = {
 export function getAuthErrorMessage(error: unknown, context: 'login' | 'signup') {
   if (!(error instanceof ApiError)) return 'Algo salió mal. Inténtalo de nuevo.'
 
-  if (error.status === 0) return 'No se pudo conectar con el servidor. Inténtalo más tarde.'
+  // 502-504 come from the dev proxy (or a gateway) when the backend is down.
+  if (error.status === 0 || (error.status >= 502 && error.status <= 504)) {
+    return 'No se pudo conectar con el servidor. Inténtalo más tarde.'
+  }
 
   if (context === 'login' && (error.status === 400 || error.status === 401)) {
     return 'Email o contraseña incorrectos.'
@@ -117,8 +134,6 @@ export function getAuthErrorMessage(error: unknown, context: 'login' | 'signup')
     )
     return [...new Set(messages)].join(' ')
   }
-
-  if (error.status === 429) return 'Demasiados intentos. Espera un momento y vuelve a intentarlo.'
 
   return 'Algo salió mal. Inténtalo de nuevo.'
 }
